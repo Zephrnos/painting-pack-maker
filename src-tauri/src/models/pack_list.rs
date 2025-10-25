@@ -92,6 +92,10 @@ impl<T> PackList<T> {
         self.paintings.push(painting);
     }
 
+    pub fn painting_count(&self) -> usize {
+        self.paintings.len()
+    }
+
     pub fn separate_paintings<U>(self) -> (PackList<U>, Vec<T>) {
         
         // 1. Create the new struct with a new, empty `paintings` vector.
@@ -111,5 +115,151 @@ impl<T> PackList<T> {
 
         // 3. Return both new pieces as a tuple.
         (new_list, original_paintings)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // --- Tests for check_no_input helper ---
+
+    #[test]
+    fn test_check_no_input_valid() {
+        let input = "  Valid Input  ";
+        assert_eq!(check_no_input(input), Some("  Valid Input  ".to_string()));
+    }
+
+    #[test]
+    fn test_check_no_input_empty() {
+        let input = "";
+        assert_eq!(check_no_input(input), None);
+    }
+
+    #[test]
+    fn test_check_no_input_whitespace_only() {
+        let input = "    ";
+        assert_eq!(check_no_input(input), None);
+    }
+
+    // --- Tests for PackList methods ---
+
+    #[test]
+    fn test_packlist_new() {
+        let list: PackList<i32> = PackList::new(
+            "Test Pack".to_string(),
+            "1.1.0".to_string(),
+            "test_id".to_string(),
+            "A test description".to_string(),
+        );
+        assert_eq!(list.pack_name, "Test Pack");
+        assert_eq!(list.version, "1.1.0");
+        assert_eq!(list.id, "test_id");
+        assert_eq!(list.description, "A test description");
+        assert_eq!(list.painting_count(), 0);
+    }
+
+    #[test]
+    fn test_packlist_default() {
+        let list: PackList<i32> = PackList::default();
+        assert_eq!(list.pack_name, "Default");
+        assert_eq!(list.version, "1.0.0");
+        assert_eq!(list.description, "A list of paintings in the gallery");
+        assert!(!list.id.is_empty()); // ID should be a random number string
+        assert_eq!(list.painting_count(), 0);
+    }
+
+    #[test]
+    fn test_set_pack_name() {
+        let mut list: PackList<i32> = PackList::default();
+        assert_eq!(list.pack_name, "Default");
+        
+        // Test valid update
+        list.set_pack_name("New Name");
+        assert_eq!(list.pack_name, "New Name");
+
+        // Test invalid (empty) update
+        list.set_pack_name("   ");
+        assert_eq!(list.pack_name, "New Name"); // Should not change
+    }
+
+    #[test]
+    fn test_set_version() {
+        let mut list: PackList<i32> = PackList::default();
+        assert_eq!(list.version, "1.0.0");
+        
+        // Test valid update
+        list.set_version("2.0.0");
+        assert_eq!(list.version, "2.0.0");
+
+        // Test invalid (empty) update
+        list.set_version("");
+        assert_eq!(list.version, "2.0.0"); // Should not change
+    }
+
+    #[test]
+    fn test_set_id() {
+        let mut list: PackList<i32> = PackList::default();
+        let original_id = list.id.clone();
+        
+        // Test valid update
+        list.set_id("new_custom_id");
+        assert_eq!(list.id, "new_custom_id");
+
+        // Test invalid (empty) update
+        list.set_id("  ");
+        assert_eq!(list.id, "new_custom_id"); // Should not change
+    }
+
+    #[test]
+    fn test_set_description() {
+        let mut list: PackList<i32> = PackList::default();
+        assert_eq!(list.description, "A list of paintings in the gallery");
+        
+        // Test valid update
+        list.set_description("A new description.");
+        assert_eq!(list.description, "A new description.");
+
+        // Test invalid (empty) update
+        list.set_description(" ");
+        assert_eq!(list.description, "A new description."); // Should not change
+    }
+
+    #[test]
+    fn test_add_painting() {
+        let mut list: PackList<i32> = PackList::default();
+        assert_eq!(list.painting_count(), 0);
+        
+        list.add_painting(100);
+        assert_eq!(list.painting_count(), 1);
+
+        list.add_painting(200);
+        assert_eq!(list.painting_count(), 2);
+    }
+
+    #[test]
+    fn test_separate_paintings() {
+        let mut list: PackList<i32> = PackList::new(
+            "Original Pack".to_string(),
+            "1.0".to_string(),
+            "original_id".to_string(),
+            "Original Desc".to_string(),
+        );
+        list.add_painting(1);
+        list.add_painting(2);
+
+        // Perform the separation
+        // We are separating a PackList<i32> into a PackList<String> and a Vec<i32>
+        let (new_list, original_paintings_vec): (PackList<String>, Vec<i32>) = list.separate_paintings();
+
+        // Check the new list (metadata)
+        assert_eq!(new_list.pack_name, "Original Pack");
+        assert_eq!(new_list.id, "original_id");
+        assert_eq!(new_list.painting_count(), 0); // New list should have no paintings
+
+        // Check the extracted vector
+        assert_eq!(original_paintings_vec.len(), 2);
+        assert_eq!(original_paintings_vec[0], 1);
+        assert_eq!(original_paintings_vec[1], 2);
     }
 }
