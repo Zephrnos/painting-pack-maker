@@ -1,2 +1,9 @@
-# MCPPM
-Rust and Tauri based painting pack maker for Minecraft uses native webview within Tauri.
+## Getting Started
+
+### Requirements
+- Rust (stable) — install via https://rustup.rs
+- (Optional) Tauri CLI: `cargo install tauri-cli`
+
+### Build & Run (development)
+```bash
+cargo tauri dev
