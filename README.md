@@ -10,4 +10,4 @@ Rust and Tauri based painting pack maker for Minecraft uses native webview withi
  - Give paintings names and artists, and fill out other fields
  - Select Pack -> Export
 
- And you've just make your very own painting pack for Minecraft!
+ And you've just made your very own painting pack for Minecraft!
